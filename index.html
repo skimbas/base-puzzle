@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
+    <title>Base Mini Puzzle</title>
+    <style>
+      :root {
+        --bg: #050816;
+        --bg-soft: #0b1020;
+        --accent: #42e8e0;
+        --accent-soft: rgba(66, 232, 224, 0.18);
+        --accent-strong: #33b8b1;
+        --accent-warn: #ffb347;
+        --text-main: #f9fafb;
+        --text-muted: #9ca3af;
+        --tile-bg: #111827;
+        --tile-border: #1f2937;
+        --radius-lg: 18px;
+        --radius-md: 14px;
+        --radius-pill: 999px;
+        --shadow-soft: 0 24px 60px rgba(0, 0, 0, 0.6);
+        --shadow-tile: 0 10px 25px rgba(0, 0, 0, 0.6);
+        --transition-fast: 0.15s ease-out;
+        --transition-med: 0.22s ease-out;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+          "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+        color: var(--text-main);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      body {
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+      }
+
+      .app {
+        position: relative;
+        flex: 1;
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 16px 16px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      @media (min-width: 480px) {
+        .app {
+          padding-top: 24px;
+        }
+      }
+
+      .card {
+        background: radial-gradient(circle at top left, #111827 0, #020617 55%);
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        box-shadow: var(--shadow-soft);
+        padding: 16px 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: -40%;
+        background: radial-gradient(
+          circle at top right,
+          rgba(66, 232, 224, 0.16),
+          transparent 60%
+        );
+        opacity: 0.9;
+        pointer-events: none;
+      }
+
+      .card-inner {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      header.app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .brand-logo {
+        width: 32px;
+        height: 32px;
+        border-radius: 12px;
+        background: conic-gradient(
+          from 210deg,
+          #22d3ee,
+          #22c55e,
+          #eab308,
+          #22d3ee
+        );
+        padding: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 16px 30px rgba(15, 23, 42, 0.8);
+      }
+
+      .brand-logo-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        background: radial-gradient(circle at 20% 0, #0ea5e9 0, #020617 55%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #e0f2fe;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        font-size: 0.75rem;
+      }
+
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .brand-title {
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+
+      .brand-subtitle {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: var(--radius-pill);
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        color: var(--text-muted);
+        font-size: 0.7rem;
+      }
+
+      .pill-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #22c55e;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+      }
+
+      .pill-label {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .wallet-btn {
+        flex-shrink: 0;
+        border-radius: 999px;
+        border: 0;
+        padding: 8px 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #e0f2fe;
+        background: linear-gradient(135deg, #0ea5e9, #22c55e);
+        box-shadow: 0 10px 25px rgba(8, 47, 73, 0.8);
+        cursor: pointer;
+        transition: transform var(--transition-fast),
+          box-shadow var(--transition-fast), filter var(--transition-fast);
+      }
+
+      .wallet-btn span {
+        font-size: 0.7rem;
+      }
+
+      .wallet-indicator {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.9);
+      }
+
+      .wallet-btn:hover {
+        filter: brightness(1.05);
+        transform: translateY(-1px);
+        box-shadow: 0 14px 32px rgba(8, 47, 73, 0.9);
+      }
+
+      .wallet-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 8px 18px rgba(8, 47, 73, 0.8);
+      }
+
+      main {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .status-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .status-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status-chip {
+        padding: 6px 10px;
+        border-radius: var(--radius-pill);
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .status-chip strong {
+        font-weight: 600;
+        color: var(--text-main);
+      }
+
+      .reset-btn {
+        border-radius: var(--radius-pill);
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: rgba(15, 23, 42, 0.95);
+        color: var(--text-main);
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: background var(--transition-fast),
+          border-color var(--transition-fast), transform var(--transition-fast);
+      }
+
+      .reset-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: var(--accent-warn);
+        box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.1);
+      }
+
+      .reset-btn:hover {
+        background: rgba(17, 24, 39, 0.95);
+        transform: translateY(-0.5px);
+      }
+
+      .reset-btn:active {
+        transform: translateY(0);
+      }
+
+      .help-text {
+        font-size: 0.74rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .help-badge {
+        padding: 3px 7px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+
+      .puzzle-shell {
+        position: relative;
+        border-radius: 26px;
+        padding: 12px;
+        background: radial-gradient(circle at top, #020617 0, #020617 55%);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+      }
+
+      .puzzle-shell::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(
+          circle at 0 0,
+          rgba(66, 232, 224, 0.18),
+          transparent 55%
+        );
+        opacity: 0.35;
+        pointer-events: none;
+      }
+
+      .puzzle-shell-inner {
+        position: relative;
+        z-index: 1;
+      }
+
+      .puzzle-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        width: 100%;
+        max-width: 360px;
+        margin: 0 auto;
+        aspect-ratio: 1 / 1;
+      }
+
+      .tile {
+        border-radius: 18px;
+        border: 1px solid var(--tile-border);
+        background: radial-gradient(circle at top, #1e293b 0, #020617 80%);
+        color: #e5e7eb;
+        font-size: clamp(1.1rem, 4vw, 1.4rem);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-tile);
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        transition: transform var(--transition-med),
+          box-shadow var(--transition-med), border-color var(--transition-med),
+          background var(--transition-med), color var(--transition-med),
+          opacity var(--transition-fast), filter var(--transition-fast);
+      }
+
+      .tile::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(
+          circle at 20% 0,
+          rgba(248, 250, 252, 0.32),
+          transparent 55%
+        );
+        opacity: 0;
+        transition: opacity var(--transition-med);
+        pointer-events: none;
+      }
+
+      .tile:not(.tile-empty):hover {
+        transform: translateY(-1px);
+        border-color: rgba(96, 165, 250, 0.9);
+        box-shadow: 0 16px 40px rgba(37, 99, 235, 0.85);
+      }
+
+      .tile:not(.tile-empty):active {
+        transform: translateY(0);
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.9);
+      }
+
+      .tile-adjacent {
+        /* Плитка, которую можно сдвинуть прямо сейчас */
+        border-color: rgba(96, 165, 250, 0.8);
+        background: radial-gradient(circle at top, #0f172a 0, #020617 80%);
+      }
+
+      .tile-adjacent::before {
+        opacity: 0.85;
+      }
+
+      .tile-correct {
+        /* Плитка на своём месте — мягкая зелёная подсветка */
+        border-color: rgba(52, 211, 153, 0.6);
+        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.28);
+      }
+
+      .tile-empty {
+        background: radial-gradient(circle at top, #020617 0, #020617 80%);
+        border-style: dashed;
+        border-color: rgba(31, 41, 55, 0.9);
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.9);
+        cursor: default;
+      }
+
+      .tile-empty::before {
+        display: none;
+      }
+
+      .tile-solved {
+        /* Финальное состояние после победы — более сильный эффект */
+        border-color: rgba(52, 211, 153, 0.95);
+        box-shadow: 0 18px 40px rgba(16, 185, 129, 0.8);
+      }
+
+      .tile-solved::before {
+        opacity: 1;
+      }
+
+      .footer {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+        padding: 0 2px;
+      }
+
+      .footer-badge {
+        padding: 4px 9px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        background: rgba(15, 23, 42, 0.9);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.6rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .footer-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--accent);
+      }
+
+      .footer-text {
+        text-align: right;
+      }
+
+      .footer-text span {
+        color: #e5e7eb;
+      }
+
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.88);
+        backdrop-filter: blur(12px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 50;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.22s ease-out;
+      }
+
+      .overlay.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .overlay-card {
+        width: 100%;
+        max-width: 360px;
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        background: radial-gradient(circle at top, #0b1120 0, #020617 55%);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+        padding: 20px 18px 18px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .overlay-card::before {
+        content: "";
+        position: absolute;
+        inset: -40%;
+        background: radial-gradient(
+          circle at top right,
+          rgba(45, 212, 191, 0.25),
+          transparent 55%
+        );
+        opacity: 0.9;
+        pointer-events: none;
+      }
+
+      .overlay-inner {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .overlay-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .overlay-title-main {
+        font-size: 1.25rem;
+        font-weight: 700;
+      }
+
+      .overlay-title-sub {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+
+      .badge-win {
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: rgba(22, 163, 74, 0.2);
+        border: 1px solid rgba(34, 197, 94, 0.7);
+        color: #bbf7d0;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .badge-win-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: #22c55e;
+      }
+
+      .overlay-stats {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 18px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.25);
+      }
+
+      .overlay-stat {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .overlay-stat-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+
+      .overlay-stat-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .overlay-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .primary-btn,
+      .ghost-btn {
+        flex: 1;
+        border-radius: var(--radius-pill);
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        border: 0;
+        transition: transform var(--transition-fast),
+          box-shadow var(--transition-fast), background var(--transition-fast),
+          color var(--transition-fast), border-color var(--transition-fast),
+          opacity var(--transition-fast);
+      }
+
+      .primary-btn {
+        background: linear-gradient(135deg, #0ea5e9, #22c55e);
+        color: #e0f2fe;
+        box-shadow: 0 12px 28px rgba(8, 47, 73, 0.9);
+      }
+
+      .primary-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 16px 36px rgba(8, 47, 73, 1);
+      }
+
+      .primary-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 10px 24px rgba(8, 47, 73, 0.95);
+      }
+
+      .ghost-btn {
+        background: rgba(15, 23, 42, 0.95);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        color: var(--text-main);
+      }
+
+      .ghost-btn:hover {
+        background: rgba(17, 24, 39, 0.95);
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 360px) {
+        .card {
+          padding: 14px;
+        }
+
+        .status-row {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        header.app-header {
+          align-items: flex-start;
+        }
+
+        .wallet-btn {
+          padding-inline: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="card">
+        <div class="card-inner">
+          <header class="app-header">
+            <div class="brand">
+              <div class="brand-logo">
+                <div class="brand-logo-inner">B</div>
+              </div>
+              <div class="brand-text">
+                <div class="brand-title">Base Puzzle</div>
+                <div class="brand-subtitle">
+                  Мини-игра для Base Mini App
+                </div>
+              </div>
+            </div>
+            <button id="walletButton" class="wallet-btn" type="button">
+              <div class="wallet-indicator"></div>
+              <span id="walletButtonLabel">Connect Wallet</span>
+            </button>
+          </header>
+
+          <main>
+            <div class="status-row">
+              <div class="status-group">
+                <div class="status-chip">
+                  <span>Ходы</span>
+                  <strong id="movesCount">0</strong>
+                </div>
+                <div class="pill">
+                  <span class="pill-dot"></span>
+                  <span class="pill-label">3 × 3</span>
+                </div>
+              </div>
+              <button id="resetButton" class="reset-btn" type="button">
+                <span class="reset-dot"></span>
+                <span>Сбросить</span>
+              </button>
+            </div>
+
+            <div class="help-text">
+              <span class="help-badge">Цель</span>
+              <span>Собери плитки по порядку от 1 до 8.</span>
+            </div>
+
+            <div class="puzzle-shell">
+              <div class="puzzle-shell-inner">
+                <div id="puzzle" class="puzzle-grid" aria-label="Поле пазла">
+                  <!-- Плитки создаются скриптом -->
+                </div>
+              </div>
+            </div>
+          </main>
+
+          <footer class="footer">
+            <div class="footer-badge">
+              <span class="footer-dot"></span>
+              <span>Ready for Base</span>
+            </div>
+            <div class="footer-text">
+              <div>Структура под интеграцию с <span>Base</span>.</div>
+              <div>Onchain‑логика добавится позже.</div>
+            </div>
+          </footer>
+        </div>
+      </div>
+    </div>
+
+    <div id="winOverlay" class="overlay">
+      <div class="overlay-card">
+        <div class="overlay-inner">
+          <div class="overlay-title">
+            <div>
+              <div class="overlay-title-main">Пазл собран 🎉</div>
+              <div class="overlay-title-sub">
+                Отличный результат! Готово для Base Mini App.
+              </div>
+            </div>
+            <div class="badge-win">
+              <span class="badge-win-dot"></span>
+              <span>Win</span>
+            </div>
+          </div>
+
+          <div class="overlay-stats">
+            <div class="overlay-stat">
+              <span class="overlay-stat-label">Ходы</span>
+              <span id="finalMoves" class="overlay-stat-value">0</span>
+            </div>
+            <div class="overlay-stat">
+              <span class="overlay-stat-label">Режим</span>
+              <span class="overlay-stat-value">3 × 3</span>
+            </div>
+          </div>
+
+          <div class="overlay-actions">
+            <button id="publishButton" class="primary-btn" type="button">
+              <span>Опубликовать</span>
+            </button>
+            <button id="playAgainButton" class="ghost-btn" type="button">
+              <span>Играть снова</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // -----------------------------
+      // Конфигурация пазла
+      // -----------------------------
+
+      const GRID_SIZE = 3; // 3x3 поле
+      const TILE_COUNT = GRID_SIZE * GRID_SIZE - 1; // 8 пронумерованных плиток
+
+      // -----------------------------
+      // Состояние
+      // -----------------------------
+
+      const state = {
+        tiles: [],
+        moves: 0,
+        isSolved: false,
+        canInteract: true,
+      };
+
+      // Минимальная структура состояния кошелька / Base Mini App
+      const walletState = {
+        connected: false,
+        address: null,
+        provider: null,
+        // В будущем сюда можно добавить chainId, sessionId и т.п.
+      };
+
+      // -----------------------------
+      // Инициализация DOM
+      // -----------------------------
+
+      const puzzleEl = document.getElementById("puzzle");
+      const movesCountEl = document.getElementById("movesCount");
+      const finalMovesEl = document.getElementById("finalMoves");
+      const resetButton = document.getElementById("resetButton");
+      const winOverlay = document.getElementById("winOverlay");
+      const publishButton = document.getElementById("publishButton");
+      const playAgainButton = document.getElementById("playAgainButton");
+      const walletButton = document.getElementById("walletButton");
+      const walletButtonLabel = document.getElementById("walletButtonLabel");
+
+      // -----------------------------
+      // Вспомогательные функции
+      // -----------------------------
+
+      function getIndex(row, col) {
+        return row * GRID_SIZE + col;
+      }
+
+      function getCoords(index) {
+        return {
+          row: Math.floor(index / GRID_SIZE),
+          col: index % GRID_SIZE,
+        };
+      }
+
+      function isAdjacentToEmpty(index) {
+        const emptyIndex = state.tiles.indexOf(null);
+        if (emptyIndex === -1) return false;
+        const { row, col } = getCoords(index);
+        const { row: emptyRow, col: emptyCol } = getCoords(emptyIndex);
+        const rowDiff = Math.abs(row - emptyRow);
+        const colDiff = Math.abs(col - emptyCol);
+        return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+      }
+
+      function isSolved(tiles) {
+        for (let i = 0; i < TILE_COUNT; i++) {
+          if (tiles[i] !== i + 1) return false;
+        }
+        return tiles[TILE_COUNT] === null;
+      }
+
+      // Подсчёт числа инверсий в последовательности (игнорируя пустую клетку)
+      function countInversions(arr) {
+        const nums = arr.filter((n) => n !== null);
+        let inversions = 0;
+        for (let i = 0; i < nums.length; i++) {
+          for (let j = i + 1; j < nums.length; j++) {
+            if (nums[i] > nums[j]) inversions++;
+          }
+        }
+        return inversions;
+      }
+
+      // Проверка, является ли данная раскладка решаемой
+      function isSolvable(tiles) {
+        const inversions = countInversions(tiles);
+
+        if (GRID_SIZE % 2 === 1) {
+          // Для поля нечётной ширины (3x3, 5x5 и т.п.) — инверсий должно быть чётное число
+          return inversions % 2 === 0;
+        }
+
+        // Обобщённый случай для чётной ширины (на будущее, если захочешь 4x4)
+        const emptyIndex = tiles.indexOf(null);
+        const { row } = getCoords(emptyIndex); // 0‑based сверху
+        const rowFromBottom = GRID_SIZE - row; // 1‑based снизу
+
+        // Классическое правило:
+        // - если пустая клетка на нечётной строке снизу — число инверсий должно быть чётным
+        // - если на чётной строке снизу — число инверсий должно быть нечётным
+        if (rowFromBottom % 2 === 1) {
+          return inversions % 2 === 0;
+        } else {
+          return inversions % 2 === 1;
+        }
+      }
+
+      function createSolvableShuffle() {
+        const base = [];
+        for (let i = 1; i <= TILE_COUNT; i++) base.push(i);
+        base.push(null);
+
+        let shuffled = base.slice();
+
+        // Перемешиваем, пока позиция не станет решаемой
+        // и не совпадёт с решённым состоянием (чтобы не начинать сразу с победы)
+        do {
+          shuffled = shuffled
+            .slice()
+            .sort(() => Math.random() - 0.5);
+        } while (!isSolvable(shuffled) || isSolved(shuffled));
+
+        return shuffled;
+      }
+
+      function updateMoves(delta) {
+        state.moves += delta;
+        movesCountEl.textContent = String(state.moves);
+      }
+
+      function resetGame() {
+        state.tiles = createSolvableShuffle();
+        state.moves = 0;
+        state.isSolved = false;
+        state.canInteract = true;
+        movesCountEl.textContent = "0";
+        hideWinOverlay();
+        renderPuzzle();
+      }
+
+      function renderPuzzle() {
+        puzzleEl.innerHTML = "";
+
+        state.tiles.forEach((value, index) => {
+          const tile = document.createElement("button");
+          tile.type = "button";
+          tile.classList.add("tile");
+
+          if (value === null) {
+            tile.classList.add("tile-empty");
+            tile.setAttribute("aria-label", "Пустая клетка");
+          } else {
+            tile.textContent = String(value);
+            tile.setAttribute("aria-label", "Плитка " + value);
+
+            // Подсветка доступного хода
+            if (isAdjacentToEmpty(index)) {
+              tile.classList.add("tile-adjacent");
+            }
+
+            // Мягкая подсветка плиток, стоящих на своём месте
+            const isInCorrectPlace = index === value - 1;
+            if (isInCorrectPlace) {
+              tile.classList.add("tile-correct");
+              // После победы усиливаем эффект для всех правильных плиток
+              if (state.isSolved) {
+                tile.classList.add("tile-solved");
+              }
+            }
+
+            tile.addEventListener("click", () => handleTileClick(index));
+            tile.addEventListener("touchend", (e) => {
+              e.preventDefault();
+              handleTileClick(index);
+            });
+          }
+
+          puzzleEl.appendChild(tile);
+        });
+      }
+
+      function handleTileClick(index) {
+        if (!state.canInteract || state.isSolved) return;
+        const clickedValue = state.tiles[index];
+        if (clickedValue === null) return;
+
+        if (!isAdjacentToEmpty(index)) {
+          // Небольшой мягкий фидбэк: "микро-шэйк"
+          const tileEl = puzzleEl.children[index];
+          tileEl.style.transform = "translateY(-1px) scale(0.98)";
+          setTimeout(() => {
+            tileEl.style.transform = "";
+          }, 110);
+          return;
+        }
+
+        const emptyIndex = state.tiles.indexOf(null);
+        [state.tiles[index], state.tiles[emptyIndex]] = [
+          state.tiles[emptyIndex],
+          state.tiles[index],
+        ];
+
+        updateMoves(1);
+        renderPuzzle();
+
+        if (isSolved(state.tiles)) {
+          state.isSolved = true;
+          state.canInteract = false;
+          handleWin();
+        }
+      }
+
+      function handleWin() {
+        // Финальная подсветка
+        state.tiles.forEach((value, index) => {
+          if (value && index === value - 1 && puzzleEl.children[index]) {
+            puzzleEl.children[index].classList.add("tile-solved");
+          }
+        });
+        finalMovesEl.textContent = String(state.moves);
+        showWinOverlay();
+      }
+
+      function showWinOverlay() {
+        winOverlay.classList.add("visible");
+      }
+
+      function hideWinOverlay() {
+        winOverlay.classList.remove("visible");
+      }
+
+      async function copyResultToClipboard() {
+        const text = `Base Puzzle: собрал(а) пазл 3×3 за ${state.moves} ходов.`;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            await navigator.clipboard.writeText(text);
+          } catch {
+            // молча игнорируем, если копирование недоступно
+          }
+        }
+      }
+
+      // -----------------------------
+      // Структура под интеграцию Base / Coinbase Wallet
+      // -----------------------------
+
+      /**
+       * Базовая инициализация "Mini App" окружения.
+       * Здесь можно будет подключить SDK Base / Coinbase Wallet,
+       * навешивать обработчики события сессии и т.п.
+       */
+      function initBaseMiniAppEnvironment() {
+        // TODO: инициализация Mini App SDK, если доступен:
+        // - проверка window.BaseMiniApp или аналогичного объекта
+        // - установка провайдера, chainId и др.
+        //
+        // Пример:
+        // if (window.BaseMiniApp) {
+        //   walletState.provider = window.BaseMiniApp.provider;
+        // }
+      }
+
+      /**
+       * Заготовка для подключения кошелька.
+       * Сейчас не содержит реального onchain-кода, только UI‑поведение.
+       */
+      async function connectWallet() {
+        // Здесь в будущем можно выбрать стратегию:
+        // 1) Использовать встроенный провайдер Base Mini App
+        // 2) Использовать Coinbase Wallet SDK
+        // 3) Падать обратно на стандартный window.ethereum
+
+        // Пример мягкого fallback'а на window.ethereum (без реального onchain‑флоу):
+        const ethereum = window.ethereum;
+
+        if (!ethereum) {
+          // Сигнализируем только в консоль, чтобы не мешать UX
+          console.warn(
+            "[Base Puzzle] Провайдер кошелька не найден. " +
+              "Позже здесь появится интеграция с Base / Coinbase Wallet."
+          );
+          // В будущем можно показать in‑app tooltip / snackbar
+          return;
+        }
+
+        try {
+          walletButton.disabled = true;
+          walletButtonLabel.textContent = "Connecting...";
+
+          // В реальной интеграции здесь будет запрос accounts / session
+          const accounts = await ethereum.request({
+            method: "eth_requestAccounts",
+          });
+
+          const address = Array.isArray(accounts) ? accounts[0] : null;
+          if (address) {
+            walletState.connected = true;
+            walletState.address = address;
+            walletState.provider = ethereum;
+          }
+        } catch (error) {
+          console.error("[Base Puzzle] Ошибка при подключении кошелька:", error);
+        } finally {
+          walletButton.disabled = false;
+          updateWalletUI();
+        }
+      }
+
+      function shortenAddress(address) {
+        if (!address) return "";
+        return (
+          address.slice(0, 4) +
+          "…" +
+          address.slice(address.length - 4, address.length)
+        );
+      }
+
+      function updateWalletUI() {
+        const indicator = walletButton.querySelector(".wallet-indicator");
+
+        if (walletState.connected && walletState.address) {
+          walletButtonLabel.textContent = shortenAddress(walletState.address);
+          walletButtonLabel.style.fontVariantNumeric = "tabular-nums";
+          walletButtonLabel.style.letterSpacing = "0.06em";
+          indicator.style.background = "#22c55e";
+          indicator.style.boxShadow = "0 0 0 4px rgba(34,197,94,0.3)";
+        } else {
+          walletButtonLabel.textContent = "Connect Wallet";
+          walletButtonLabel.style.fontVariantNumeric = "";
+          walletButtonLabel.style.letterSpacing = "";
+          indicator.style.background = "rgba(15,23,42,0.9)";
+          indicator.style.boxShadow = "none";
+        }
+      }
+
+      // -----------------------------
+      // Навешиваем обработчики
+      // -----------------------------
+
+      resetButton.addEventListener("click", () => {
+        resetGame();
+      });
+
+      playAgainButton.addEventListener("click", () => {
+        hideWinOverlay();
+        resetGame();
+      });
+
+      publishButton.addEventListener("click", () => {
+        const message =
+          "Publish to Base (onchain логика будет добавлена позже)";
+        // Для обычного пользователя покажем простое окно
+        alert(message);
+        // И параллельно оставим сообщение в консоли для разработчика
+        console.log(message);
+      });
+
+      walletButton.addEventListener("click", () => {
+        if (!walletState.connected) {
+          connectWallet();
+        } else {
+          // Простое поведение по умолчанию:
+          // при повторном клике можно будет открыть экран настроек, меню "Disconnect" и т.п.
+          console.log(
+            "[Base Puzzle] Кошелёк уже подключён:",
+            walletState.address
+          );
+        }
+      });
+
+      // -----------------------------
+      // Старт
+      // -----------------------------
+
+      initBaseMiniAppEnvironment();
+      resetGame();
+    </script>
+  </body>
+</html>
+
